@@ -4,7 +4,6 @@ import click
 @click.command()
 @click.argument('query')
 @click.option('-a', '--app_key', 
-			  default='01992E86-F436-11E8-B481-AFB1502E27AA',
 			  help='Your APP_KEY from LADS')
 
 
