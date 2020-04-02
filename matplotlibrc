@@ -1,0 +1,15 @@
+font.family: Arial
+
+axes.prop_cycle: cycler('color', ['1F2648', 'D03A3B', 'A9A9A9'])
+
+# #1F2648: CTA blue
+# #D03A3B: CTA red
+# #3F3F5F: CTA lightblue
+
+image.cmap: bone
+
+legend.frameon: False
+
+lines.linewidth: 1
+
+backend: TkAgg
