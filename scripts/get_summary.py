@@ -43,7 +43,8 @@ def main(site):
 	for f in files:
 	    res = res.append(pd.read_csv(f))
 	    
-	res.index = np.arange(len(res))
+	#res.index = np.arange(len(res))
+	res = res.reset_index()
 
 	res['year'] = [datetime.fromisoformat(res.date.values[i]).year for i in res.index]
 	res['month'] = [datetime.fromisoformat(res.date.values[i]).month for i in res.index]
