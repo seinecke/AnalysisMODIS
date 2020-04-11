@@ -87,12 +87,18 @@ def main(site):
 	    df['cloudfraction_'+months[m]][df.site == site] = np.mean(cloudfraction)
 	    df['cloudheight_'+months[m]][df.site == site] = np.mean(cloudheight) / 1000
 
-	    
+	
 	for measure in measures:
-	    df[measure+'_spring'] = df[measure+'_sep'] + df[measure+'_oct'] + df[measure+'_nov']
+	    df[measure+'_spring'] = df[measure+'_sep'] + df[measure+'_oct'] + df[measure+'_nov'] 
 	    df[measure+'_summer'] = df[measure+'_dec'] + df[measure+'_jan'] + df[measure+'_feb']
 	    df[measure+'_autumn'] = df[measure+'_mar'] + df[measure+'_apr'] + df[measure+'_may']
 	    df[measure+'_winter'] = df[measure+'_jun'] + df[measure+'_jul'] + df[measure+'_aug']
+
+	    if measure != 'clouddays':
+	    	df[measure+'_spring'] = df[measure+'_spring'] / 3
+	    	df[measure+'_summer'] = df[measure+'_summer'] / 3
+	    	df[measure+'_autumn'] = df[measure+'_autumn'] / 3
+	    	df[measure+'_winter'] = df[measure+'_winter'] / 3
 	   
 
 	### Store summary statistics
