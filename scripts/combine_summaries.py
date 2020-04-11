@@ -16,7 +16,7 @@ def main(sites):
 	df = pd.DataFrame()
 
 	for site in sites:
-		df = df.append(pd.read_csv(site+'/'+site+'_summary.csv'))
+		df = df.append(pd.read_csv(site+'_summary.csv'))
 	
 	df = df.reset_index()
 

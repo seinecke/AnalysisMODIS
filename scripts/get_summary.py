@@ -43,7 +43,6 @@ def main(site):
 	for f in files:
 	    res = res.append(pd.read_csv(f))
 	    
-	#res.index = np.arange(len(res))
 	res = res.reset_index()
 
 	res['year'] = [datetime.fromisoformat(res.date.values[i]).year for i in res.index]
@@ -103,7 +102,7 @@ def main(site):
 	   
 
 	### Store summary statistics
-	df.to_csv(site+'/'+site+'_summary.csv', index=False)
+	df.to_csv(site+'_summary.csv', index=False)
 	
 
 if __name__ == '__main__':
