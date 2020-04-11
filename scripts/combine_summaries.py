@@ -11,13 +11,15 @@ import glob
 
 def main(sites):
 
+	sites = eval(sites)
+
 	df = pd.DataFrame()
 
 	for site in sites:
-		df = df.append(pd.read_csv(site+'_summary.csv'))
+		df = df.append(pd.read_csv(site+'/'+site+'_summary.csv'))
 	
 	df = df.reset_index()
-	
+
 	df.to_csv('summary.csv', index=False)
 	
 

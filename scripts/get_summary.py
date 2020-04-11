@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from itertools import product
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 
@@ -8,9 +10,8 @@ import glob
 
 @click.command()
 @click.argument('site')
-@click.argument('years')
 
-def main(site, years):
+def main(site):
 
 	### Prepare DataFrame for store summary statistics
 
@@ -47,6 +48,7 @@ def main(site, years):
 	res['year'] = [datetime.fromisoformat(res.date.values[i]).year for i in res.index]
 	res['month'] = [datetime.fromisoformat(res.date.values[i]).month for i in res.index]
 
+	years = list(set(res['year']))
 
 	### Calculate summary statistics
 	clouddays = []
@@ -94,7 +96,7 @@ def main(site, years):
 	   
 
 	### Store summary statistics
-	df.to_csv(site+'_summary.csv', index=False)
+	df.to_csv(site+'/'+site+'_summary.csv', index=False)
 	
 
 if __name__ == '__main__':
