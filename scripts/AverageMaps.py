@@ -11,8 +11,7 @@ import click
 
 def main(input_folder):
 
-	#for location in ['WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Moorook']:
-	for location in ['WesternAustralia', 'Mereenie']:
+	for location in ['WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Moorook']:
 
 		for measure in ['cloudmask', 'cloudfraction', 'cloudheight']:
 
