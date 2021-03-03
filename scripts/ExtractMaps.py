@@ -63,7 +63,7 @@ def main(path, output_folder):
 		cfraction = fraction5km.flatten()
 
 
-		for location in ['Arkaroola', 'WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Moorook']:
+		for location in ['Arkaroola', 'WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Riverland']:
 
 			if location == 'MtBruce':
 				lat = -22.608
@@ -95,6 +95,9 @@ def main(path, output_folder):
 			elif location == 'Moorook':
 				lat = -34.267
 				lon = 140.334
+			elif location == 'Riverland':
+				lat = -34.4235
+				lon = 139.897.334
 			elif location == 'Adelaide':
 				lat = -34.928889
 				lon = 138.601111

@@ -7,23 +7,23 @@ import click
 
 @click.command()
 @click.argument('input_folder')
+@click.option('--plot/--no-plot', default=False)
 
 
-def main(input_folder):
+def main(input_folder, plot):
 
-	for location in ['WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Moorook']:
+	for location in ['WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Riverland']:
 
 		for measure in ['cloudmask', 'cloudfraction', 'cloudheight']:
 
-			make_mean_image_year(input_folder, location, measure)
-			make_mean_image_season(input_folder, location,  measure)
-			make_mean_image_month(input_folder, location, measure)
+			make_mean_image_year(input_folder, location, measure, plot)
+			make_mean_image_season(input_folder, location,  measure, plot)
+			make_mean_image_month(input_folder, location, measure, plot)
 
 			print(f'{location} and {measure} done.')
 
 
-
-def make_mean_image_year(input_folder, location, measure='cloudmask'):
+def make_mean_image_year(input_folder, location, measure='cloudmask', plot=False):
     images = glob.glob(f'{input_folder}{location}_{measure}_20*-*-*.npy')
     
     dlon = 1
@@ -59,48 +59,58 @@ def make_mean_image_year(input_folder, location, measure='cloudmask'):
     elif location == 'Moorook':
         lat = -34.267
         lon = 140.334
+    elif location == 'Riverland':
+        lat = -34.4235
+        lon = 139.897
         
-    mean_image = np.load(images[0])*1.0
-    for image in images[1:]:
-        mean_image += np.load(image)
-    mean_image = mean_image / len(images)
-    
-    plt.imshow(mean_image.T,
-    			vmin=0, 
-               extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
-    
-    if location == 'WesternAustralia':
-        # MtMeharry
-        plt.plot(118.588, -22.980, 'ro')
-        # MtBruce
-        plt.plot(118.144, -22.608, 'ro')
-    else:
-        plt.plot(lon, lat, 'ro')
+    all_images = np.zeros((len(images), np.load(images[0]).shape[0], np.load(images[0]).shape[1]))
+    for i in range(len(images)):
+        all_images[i] = np.load(images[i])
         
-    plt.gca().invert_yaxis()
-    plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
-    plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+    if measure == 'cloudheight':
+        all_images[all_images<0.1] = np.nan
+    mean_image = np.nanmean(all_images, axis=0)
 
-    cbar = plt.colorbar(pad=0.01)
+    np.save(f'{location}-{measure}.npy', mean_image)
 
-    if measure == 'cloudmask':
-        plt.clim(0,3)
-        cbar.set_label('Cloud Index', rotation=270, labelpad=10)
-    elif measure == 'cloudheight':
-        #plt.clim(0,4000)
-        cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
-    elif measure == 'cloudfraction':
-        plt.clim(0,100)
-        cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+    if plot:
+    
+	    plt.imshow(mean_image.T,
+	    			vmin=0, 
+	               extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
+	    
+	    if location == 'WesternAustralia':
+	        # MtMeharry
+	        plt.plot(118.588, -22.980, 'ro')
+	        # MtBruce
+	        plt.plot(118.144, -22.608, 'ro')
+	    else:
+	        plt.plot(lon, lat, 'ro')
+	        
+	    plt.gca().invert_yaxis()
+	    plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
+	    plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+
+	    cbar = plt.colorbar(pad=0.01)
+
+	    if measure == 'cloudmask':
+	        plt.clim(0,3)
+	        cbar.set_label('Cloud Index', rotation=270, labelpad=10)
+	    elif measure == 'cloudheight':
+	        #plt.clim(0,4000)
+	        cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
+	    elif measure == 'cloudfraction':
+	        plt.clim(0,100)
+	        cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
 
 
-    plt.xlabel('Longitude / deg')
-    plt.ylabel('Latitude / deg')
-    plt.savefig(f'{location}-{measure}.pdf')
-    plt.close()
+	    plt.xlabel('Longitude / deg')
+	    plt.ylabel('Latitude / deg')
+	    plt.savefig(f'{location}-{measure}.pdf')
+	    plt.close()
 
 
-def make_mean_image_month(input_folder, location, measure='cloudmask'):
+def make_mean_image_month(input_folder, location, measure='cloudmask', plot=False):
     
     dlon = 1
     dlat = 1
@@ -135,51 +145,61 @@ def make_mean_image_month(input_folder, location, measure='cloudmask'):
     elif location == 'Moorook':
         lat = -34.267
         lon = 140.334
+    elif location == 'Riverland':
+        lat = -34.4235
+        lon = 139.897
         
     for month in ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']:
         
         images = glob.glob(f'{input_folder}{location}_{measure}_20*-{month}-*.npy')
+
+        all_images = np.zeros((len(images), np.load(images[0]).shape[0], np.load(images[0]).shape[1]))
+        for i in range(len(images)):
+        	all_images[i] = np.load(images[i])
         
-        mean_image = np.load(images[0])*1.0
-        for image in images[1:]:
-            mean_image += np.load(image)
-        mean_image = mean_image / len(images)
+        if measure == 'cloudheight':
+        	all_images[all_images<0.1] = np.nan
+        mean_image = np.nanmean(all_images, axis=0)
 
-        plt.imshow(mean_image.T,
-        			vmin=0, 
-                   extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
+        np.save(f'{location}-{measure}-{month}.npy', mean_image)
 
-        if location == 'WesternAustralia':
-            # MtMeharry
-            plt.plot(118.588, -22.980, 'ro')
-            # MtBruce
-            plt.plot(118.144, -22.608, 'ro')
-        else:
-            plt.plot(lon, lat, 'ro')
+        if plot: 
 
-        plt.gca().invert_yaxis()
-        plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
-        plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+	        plt.imshow(mean_image.T,
+	        			vmin=0, 
+	                   extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
 
-        cbar = plt.colorbar(pad=0.01)
+	        if location == 'WesternAustralia':
+	            # MtMeharry
+	            plt.plot(118.588, -22.980, 'ro')
+	            # MtBruce
+	            plt.plot(118.144, -22.608, 'ro')
+	        else:
+	            plt.plot(lon, lat, 'ro')
 
-        if measure == 'cloudmask':
-            plt.clim(0,3)
-            cbar.set_label('Cloud Index', rotation=270, labelpad=10)
-        elif measure == 'cloudheight':
-            #plt.clim(0,4000)
-            cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
-        elif measure == 'cloudfraction':
-            plt.clim(0,100)
-            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+	        plt.gca().invert_yaxis()
+	        plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
+	        plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
 
-        plt.xlabel('Longitude / deg')
-        plt.ylabel('Latitude / deg')
-        plt.savefig(f'{location}-{measure}-{month}.pdf')
-        plt.close()
+	        cbar = plt.colorbar(pad=0.01)
+
+	        if measure == 'cloudmask':
+	            plt.clim(0,3)
+	            cbar.set_label('Cloud Index', rotation=270, labelpad=10)
+	        elif measure == 'cloudheight':
+	        	#plt.clim(0,4000)
+	            cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
+	        elif measure == 'cloudfraction':
+	            plt.clim(0,100)
+	            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+
+	        plt.xlabel('Longitude / deg')
+	        plt.ylabel('Latitude / deg')
+	        plt.savefig(f'{location}-{measure}-{month}.pdf')
+	        plt.close()
 
 
-def make_mean_image_season(input_folder, location, measure='cloudmask'):
+def make_mean_image_season(input_folder, location, measure='cloudmask', plot=False):
     
     dlon = 1
     dlat = 1
@@ -214,6 +234,9 @@ def make_mean_image_season(input_folder, location, measure='cloudmask'):
     elif location == 'Moorook':
         lat = -34.267
         lon = 140.334
+    elif location == 'Riverland':
+        lat = -34.4235
+        lon = 139.897
         
     for season in ['spring', 'summer', 'autumn', 'winter']:
         
@@ -234,44 +257,49 @@ def make_mean_image_season(input_folder, location, measure='cloudmask'):
             images = np.append(images, glob.glob(f'{input_folder}{location}_{measure}_20*-07-*.npy'))
             images = np.append(images, glob.glob(f'{input_folder}{location}_{measure}_20*-08-*.npy'))
                   
+        all_images = np.zeros((len(images), np.load(images[0]).shape[0], np.load(images[0]).shape[1]))
+        for i in range(len(images)):
+        	all_images[i] = np.load(images[i])
         
-        mean_image = np.load(images[0])*1.0
-        for image in images[1:]:
-            mean_image += np.load(image)
-        mean_image = mean_image / len(images)
+        if measure == 'cloudheight':
+        	all_images[all_images<0.1] = np.nan
+        mean_image = np.nanmean(all_images, axis=0)
 
-        plt.imshow(mean_image.T, 
-        			vmin=0,
-                   extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
+        np.save(f'{location}-{measure}-{season}.npy', mean_image)
 
-        if location == 'WesternAustralia':
-            # MtMeharry
-            plt.plot(118.588, -22.980, 'ro')
-            # MtBruce
-            plt.plot(118.144, -22.608, 'ro')
-        else:
-            plt.plot(lon, lat, 'ro')
+        if plot:
+	        plt.imshow(mean_image.T, 
+	        			vmin=0,
+	                   extent=(lon-dlon, lon+dlon, lat+dlat, lat-dlat))
 
-        plt.gca().invert_yaxis()
-        plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
-        plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+	        if location == 'WesternAustralia':
+	            # MtMeharry
+	            plt.plot(118.588, -22.980, 'ro')
+	            # MtBruce
+	            plt.plot(118.144, -22.608, 'ro')
+	        else:
+	            plt.plot(lon, lat, 'ro')
 
-        cbar = plt.colorbar(pad=0.01)
+	        plt.gca().invert_yaxis()
+	        plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
+	        plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(0.5))
 
-        if measure == 'cloudmask':
-            plt.clim(0,3)
-            cbar.set_label('Cloud Index', rotation=270, labelpad=10)
-        elif measure == 'cloudheight':
-            #plt.clim(0,4000)
-            cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
-        elif measure == 'cloudfraction':
-            plt.clim(0,100)
-            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+	        cbar = plt.colorbar(pad=0.01)
 
-        plt.xlabel('Longitude / deg')
-        plt.ylabel('Latitude / deg')
-        plt.savefig(f'{location}-{measure}-{season}.pdf')
-        plt.close()
+	        if measure == 'cloudmask':
+	            plt.clim(0,3)
+	            cbar.set_label('Cloud Index', rotation=270, labelpad=10)
+	        elif measure == 'cloudheight':
+	            #plt.clim(0,4000)
+	            cbar.set_label('Cloud Height / m', rotation=270, labelpad=10)
+	        elif measure == 'cloudfraction':
+	            plt.clim(0,100)
+	            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+
+	        plt.xlabel('Longitude / deg')
+	        plt.ylabel('Latitude / deg')
+	        plt.savefig(f'{location}-{measure}-{season}.pdf')
+	        plt.close()
 
 if __name__ == '__main__':
 	main()
