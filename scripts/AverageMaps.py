@@ -14,7 +14,7 @@ def main(input_folder, plot):
 
 	for location in ['WesternAustralia', 'Mereenie', 'Arkaroola', 'FowlersGap', 'Woomera', 'SidingSpring', 'Koonamoore', 'Riverland']:
 
-		for measure in ['cloudmask', 'cloudfraction', 'cloudheight']:
+		for measure in ['clouddays', 'cloudmask', 'cloudfraction', 'cloudheight']:
 
 			make_mean_image_year(input_folder, location, measure, plot)
 			make_mean_image_season(input_folder, location,  measure, plot)
@@ -70,6 +70,9 @@ def make_mean_image_year(input_folder, location, measure='cloudmask', plot=False
     if measure == 'cloudheight':
         all_images[all_images<0.1] = np.nan
     mean_image = np.nanmean(all_images, axis=0)
+    
+    if measure == 'clouddays':
+        mean_image = np.nansum(all_images < 1.5, axis=0) / np.nansum(all_images < 5, axis=0) * 365
 
     np.save(f'{location}-{measure}.npy', mean_image)
 
@@ -102,6 +105,8 @@ def make_mean_image_year(input_folder, location, measure='cloudmask', plot=False
 	    elif measure == 'cloudfraction':
 	        plt.clim(0,100)
 	        cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+        elif measure == 'clouddays':
+            cbar.set_label('Number of Days with Clouds', rotation=270, labelpad=10)
 
 
 	    plt.xlabel('Longitude / deg')
@@ -161,6 +166,9 @@ def make_mean_image_month(input_folder, location, measure='cloudmask', plot=Fals
         	all_images[all_images<0.1] = np.nan
         mean_image = np.nanmean(all_images, axis=0)
 
+        if measure == 'clouddays':
+            mean_image = np.nansum(all_images < 1.5, axis=0) / np.nansum(all_images < 5, axis=0) * 365 / 12
+
         np.save(f'{location}-{measure}-{month}.npy', mean_image)
 
         if plot: 
@@ -192,6 +200,8 @@ def make_mean_image_month(input_folder, location, measure='cloudmask', plot=Fals
 	        elif measure == 'cloudfraction':
 	            plt.clim(0,100)
 	            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+            elif measure == 'clouddays':
+                cbar.set_label('Number of Days with Clouds', rotation=270, labelpad=10)
 
 	        plt.xlabel('Longitude / deg')
 	        plt.ylabel('Latitude / deg')
@@ -265,6 +275,9 @@ def make_mean_image_season(input_folder, location, measure='cloudmask', plot=Fal
         	all_images[all_images<0.1] = np.nan
         mean_image = np.nanmean(all_images, axis=0)
 
+        if measure == 'clouddays':
+            mean_image = np.nansum(all_images < 1.5, axis=0) / np.nansum(all_images < 5, axis=0) * 365 / 4
+
         np.save(f'{location}-{measure}-{season}.npy', mean_image)
 
         if plot:
@@ -295,6 +308,8 @@ def make_mean_image_season(input_folder, location, measure='cloudmask', plot=Fal
 	        elif measure == 'cloudfraction':
 	            plt.clim(0,100)
 	            cbar.set_label('Cloud Fraction / %', rotation=270, labelpad=10)
+            elif measure == 'clouddays':
+                cbar.set_label('Number of Days with Clouds', rotation=270, labelpad=10)
 
 	        plt.xlabel('Longitude / deg')
 	        plt.ylabel('Latitude / deg')
